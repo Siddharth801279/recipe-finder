@@ -1,5 +1,73 @@
 @import "tailwindcss";
 
+/* Food-themed CSS Variables */
+:root {
+  --color-primary: #d97706; /* Warm orange - like spices */
+  --color-primary-light: #f59e0b;
+  --color-primary-dark: #b45309;
+  --color-secondary: #065f46; /* Deep green - like herbs */
+  --color-secondary-light: #059669;
+  --color-accent: #dc2626; /* Rich red - like tomatoes */
+  --color-accent-light: #ef4444;
+  --color-background: #1f2937; /* Dark slate */
+  --color-surface: #374151;
+  --color-surface-light: #4b5563;
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #e5e7eb;
+  --color-text-muted: #9ca3af;
+  --color-border: #6b7280;
+  --color-border-light: #9ca3af;
+}
+
+/* Custom utility classes for food theme */
+.bg-primary { background-color: var(--color-primary); }
+.bg-primary-light { background-color: var(--color-primary-light); }
+.bg-primary-dark { background-color: var(--color-primary-dark); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-secondary-light { background-color: var(--color-secondary-light); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-accent-light { background-color: var(--color-accent-light); }
+.bg-food-surface { background-color: var(--color-surface); }
+.bg-food-surface-light { background-color: var(--color-surface-light); }
+
+.text-primary { color: var(--color-primary); }
+.text-primary-light { color: var(--color-primary-light); }
+.text-secondary { color: var(--color-secondary); }
+.text-secondary-light { color: var(--color-secondary-light); }
+.text-accent { color: var(--color-accent); }
+.text-accent-light { color: var(--color-accent-light); }
+
+.border-food { border-color: var(--color-border); }
+.border-food-light { border-color: var(--color-border-light); }
+
+.hover\:bg-primary-dark:hover { background-color: var(--color-primary-dark); }
+.hover\:bg-secondary-light:hover { background-color: var(--color-secondary-light); }
+.hover\:bg-accent-light:hover { background-color: var(--color-accent-light); }
+
+/* Food-themed gradients */
+.bg-food-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+}
+
+.bg-food-gradient-subtle {
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-light) 100%);
+}
+
+/* Custom shadows for depth */
+.shadow-food {
+  box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.1), 0 2px 4px -1px rgba(217, 119, 6, 0.06);
+}
+
+.shadow-food-lg {
+  box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.1), 0 4px 6px -2px rgba(217, 119, 6, 0.05);
+}
+
 html, body, #root {
   height: 100%;
+  background-color: var(--color-background);
+}
+
+/* Smooth transitions for better UX */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
