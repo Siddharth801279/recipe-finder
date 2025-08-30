@@ -49,14 +49,12 @@ const RecipeDetails = memo(() => {
       return;
     }
 
-    const controller = new AbortController();
-
     const fetchMeal = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const data = await getMealById(id, controller.signal);
+        const data = await getMealById(id);
 
         if (!data) {
           setError("Recipe not found");
@@ -64,36 +62,27 @@ const RecipeDetails = memo(() => {
           setMeal(data);
         }
       } catch (err) {
-        if (err.name !== 'CanceledError') {
-          console.error("Failed to load recipe:", err);
-          setError("Failed to load recipe. Please try again.");
-        }
+        console.error("Failed to load recipe:", err);
+        setError("Failed to load recipe. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchMeal();
-
-    return () => {
-      controller.abort();
-    };
   }, [id]);
 
   // Retry function
   const retryFetch = useCallback(() => {
     if (id) {
-      const controller = new AbortController();
       const fetchMeal = async () => {
         try {
           setLoading(true);
           setError(null);
-          const data = await getMealById(id, controller.signal);
+          const data = await getMealById(id);
           setMeal(data || null);
         } catch (err) {
-          if (err.name !== 'CanceledError') {
-            setError("Failed to load recipe. Please try again.");
-          }
+          setError("Failed to load recipe. Please try again.");
         } finally {
           setLoading(false);
         }
@@ -115,7 +104,7 @@ const RecipeDetails = memo(() => {
     if (error || !meal) {
       return (
         <div className="text-center py-8">
-          <span className="text-6xl block mb-4" role="img" aria-label="error">😔</span>
+          <span className="text-6xl block mb-4">😔</span>
           <p className="text-lg text-white mb-4">
             {error || "Recipe not found"}
           </p>
@@ -137,13 +126,13 @@ const RecipeDetails = memo(() => {
         <div className="flex flex-wrap items-center gap-2 mb-6">
           {meal.strCategory && (
             <span className="px-3 py-1 rounded-full text-sm bg-secondary text-white border border-secondary-light flex items-center gap-1">
-              <span role="img" aria-label="category">🏷️</span>
+              <span>🏷️</span>
               {meal.strCategory}
             </span>
           )}
           {meal.strArea && (
             <span className="px-3 py-1 rounded-full text-sm bg-primary text-white border border-primary-light flex items-center gap-1">
-              <span role="img" aria-label="region">🌍</span>
+              <span>🌍</span>
               {meal.strArea}
             </span>
           )}
@@ -167,7 +156,7 @@ const RecipeDetails = memo(() => {
               loading="eager"
             />
             <div className="absolute -top-2 -right-2 bg-accent text-white p-2 rounded-full shadow-food">
-              <span className="text-2xl" role="img" aria-label="meal">🍽️</span>
+              <span className="text-2xl">🍽️</span>
             </div>
           </div>
 
@@ -178,9 +167,8 @@ const RecipeDetails = memo(() => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-accent hover:bg-accent-light text-white rounded-lg font-medium transition-all text-sm shadow-food flex items-center gap-2"
-                aria-label={`Watch ${meal.strMeal} video tutorial`}
               >
-                <span role="img" aria-hidden="true">🎥</span>
+                <span>🎥</span>
                 Watch Tutorial
               </a>
             )}
@@ -190,9 +178,8 @@ const RecipeDetails = memo(() => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-secondary hover:bg-secondary-light text-white rounded-lg font-medium transition-all text-sm shadow-food flex items-center gap-2"
-                aria-label={`View ${meal.strMeal} source`}
               >
-                <span role="img" aria-hidden="true">🔗</span>
+                <span>🔗</span>
                 Source
               </a>
             )}
@@ -202,7 +189,7 @@ const RecipeDetails = memo(() => {
         {/* Ingredients Section */}
         <section className="mb-8">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-primary-light">
-            <span className="text-2xl" role="img" aria-label="ingredients">🥘</span>
+            <span className="text-2xl">🥘</span>
             Ingredients ({ingredients.length})
           </h3>
           {ingredients.length === 0 ? (
@@ -231,7 +218,7 @@ const RecipeDetails = memo(() => {
         {/* Instructions */}
         <section>
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-primary-light">
-            <span className="text-2xl" role="img" aria-label="instructions">📝</span>
+            <span className="text-2xl">📝</span>
             Instructions
           </h3>
           <div className="bg-food-surface-light border-2 border-primary/30 rounded-xl p-6 shadow-food">

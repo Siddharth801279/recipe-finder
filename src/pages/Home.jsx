@@ -14,12 +14,12 @@ const Home = memo(() => {
   const maxPages = 5;
 
   // Fetch random meals function with improved error handling
-  const fetchRandomMeals = useCallback(async (controller) => {
+  const fetchRandomMeals = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const randomMeals = await getRandomMeals(8, controller.signal);
+      const randomMeals = await getRandomMeals(8);
 
       if (randomMeals.length === 0) {
         setError("Unable to load recipes. Please try again.");
@@ -39,9 +39,7 @@ const Home = memo(() => {
   // Effect for fetching random meals
   useEffect(() => {
     if (!searchMode) {
-      const controller = new AbortController();
-      fetchRandomMeals(controller);
-      return () => controller.abort();
+      fetchRandomMeals();
     }
   }, [currentPage, searchMode, fetchRandomMeals]);
 
@@ -78,8 +76,7 @@ const Home = memo(() => {
   // Retry function for error recovery
   const retryFetch = useCallback(() => {
     if (!searchMode) {
-      const controller = new AbortController();
-      fetchRandomMeals(controller);
+      fetchRandomMeals();
     }
   }, [searchMode, fetchRandomMeals]);
 
@@ -97,8 +94,6 @@ const Home = memo(() => {
               ? 'bg-primary text-white shadow-food border-2 border-primary-light'
               : 'bg-food-surface text-gray-300 border border-food hover:bg-primary/20 hover:text-white disabled:opacity-50'
           }`}
-          aria-label={`Go to page ${page}`}
-          aria-current={currentPage === page ? 'page' : undefined}
         >
           {page}
         </button>
@@ -112,7 +107,7 @@ const Home = memo(() => {
         {/* Hero Section */}
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-primary-light mb-4 flex items-center justify-center gap-3">
-            <span className="text-5xl" role="img" aria-label="chef">👨‍🍳</span>
+            <span className="text-5xl">👨‍🍳</span>
             Discover Amazing Recipes
           </h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
@@ -130,9 +125,8 @@ const Home = memo(() => {
               <button
                 onClick={resetToRandom}
                 className="px-6 py-2 bg-secondary hover:bg-secondary-light text-white rounded-lg font-medium transition-all shadow-food flex items-center gap-2"
-                aria-label="Return to featured recipes"
               >
-                <span aria-hidden="true">🔄</span>
+                <span>🔄</span>
                 Back to Featured Recipes
               </button>
             </div>
@@ -143,7 +137,7 @@ const Home = memo(() => {
         {error && !loading && (
           <div className="max-w-md mx-auto mt-8 text-center">
             <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6">
-              <span className="text-4xl block mb-3" role="img" aria-label="error">⚠️</span>
+              <span className="text-4xl block mb-3">⚠️</span>
               <p className="text-red-400 mb-4">{error}</p>
               <button
                 onClick={retryFetch}
@@ -169,7 +163,7 @@ const Home = memo(() => {
             <section className="mt-8">
               <div className="mb-6">
                 <h2 className="text-2xl font-semibold text-primary-light flex items-center gap-2">
-                  <span className="text-2xl" role="img" aria-label="plate">🍽️</span>
+                  <span className="text-2xl">🍽️</span>
                   {searchMode ? 'Search Results' : `Featured Recipes - Page ${currentPage}`}
                 </h2>
                 <p className="text-gray-400 mt-1">
@@ -186,7 +180,6 @@ const Home = memo(() => {
             {!searchMode && recipes.length > 0 && (
               <nav
                 className="flex justify-center items-center mt-12 mb-8"
-                aria-label="Recipe pagination"
               >
                 <div className="flex items-center gap-2">
                   {/* Previous Button */}
@@ -196,13 +189,12 @@ const Home = memo(() => {
                     className="px-4 py-2 rounded-lg bg-food-surface border border-primary text-white font-medium transition-all
                                hover:bg-primary hover:border-primary-light disabled:opacity-50 disabled:cursor-not-allowed
                                disabled:hover:bg-food-surface disabled:hover:border-primary flex items-center gap-2"
-                    aria-label="Go to previous page"
                   >
-                    <span aria-hidden="true">⬅️</span>
+                    <span>⬅️</span>
                   </button>
 
                   {/* Page Numbers */}
-                  <div className="flex items-center gap-1 mx-4" role="group" aria-label="Page numbers">
+                  <div className="flex items-center gap-1 mx-4">
                     {paginationButtons}
                   </div>
 
@@ -213,9 +205,8 @@ const Home = memo(() => {
                     className="px-4 py-2 rounded-lg bg-food-surface border border-primary text-white font-medium transition-all
                                hover:bg-primary hover:border-primary-light disabled:opacity-50 disabled:cursor-not-allowed
                                disabled:hover:bg-food-surface disabled:hover:border-primary flex items-center gap-2"
-                    aria-label="Go to next page"
                   >
-                    <span aria-hidden="true">➡️</span>
+                    <span>➡️</span>
                   </button>
                 </div>
               </nav>

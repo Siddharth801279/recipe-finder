@@ -1,134 +1,59 @@
-import React, { useState, useCallback, useRef, useEffect, memo } from "react";
+import React, { useState, memo } from "react";
 import { getMealsBySearch } from "../utils/api";
-import axios from "axios";
 
 const SearchBar = memo(({ setRecipes }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const abortControllerRef = useRef(null);
-  const debounceTimeoutRef = useRef(null);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const performSearch = useCallback(
-    async (searchQuery) => {
-      if (!searchQuery?.trim()) {
-        setRecipes([]);
-        return;
-      }
-
-      // Cancel previous request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-
-      // Create new abort controller
-      abortControllerRef.current = new AbortController();
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const results = await getMealsBySearch(
-          searchQuery.trim(),
-          abortControllerRef.current.signal
+  const performSearch = async (searchQuery) => {
+    if (!searchQuery?.trim()) {
+      setRecipes([]);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const results = await getMealsBySearch(searchQuery.trim());
+      setRecipes(results);
+      if (results.length === 0) {
+        setError(
+          `No recipes found for "${searchQuery}". Try a different search term.`
         );
-
-        setRecipes(results);
-
-        if (results.length === 0) {
-          setError(
-            `No recipes found for "${searchQuery}". Try a different search term.`
-          );
-        }
-      } catch (err) {
-        if (err.name !== "CanceledError") {
-          console.error("Search error:", err);
-          setError("Failed to search recipes. Please try again.");
-          setRecipes([]);
-        }
-      } finally {
-        setLoading(false);
       }
-    },
-    [setRecipes]
-  );
+    } catch {
+      setError("Failed to search recipes. Please try again.");
+      setRecipes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleInputChange = useCallback(
-    (e) => {
-      const value = e.target.value;
-      setQuery(value);
-      setError(null);
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
+    setError(null);
+  };
 
-      // Clear previous debounce timeout
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-      // Debounce search - search automatically after user stops typing
-      if (value.trim()) {
-        debounceTimeoutRef.current = setTimeout(() => {
-          performSearch(value);
-        }, 500); // 500ms debounce
-      } else {
-        setRecipes([]);
-      }
-    },
-    [performSearch, setRecipes]
-  );
+    performSearch(query);
+  };
 
-  const handleSubmit = useCallback(
-    (e) => {
-      e.preventDefault();
-
-      // Clear debounce timeout and search immediately
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-
-      performSearch(query);
-    },
-    [query, performSearch]
-  );
-
-  const clearSearch = useCallback(() => {
+  const clearSearch = () => {
     setQuery("");
     setError(null);
     setRecipes([]);
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-  }, [setRecipes]);
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
       <form
         onSubmit={handleSubmit}
         className="flex flex-col sm:flex-row gap-3 justify-center px-4"
-        role="search"
-        aria-label="Recipe search"
       >
         <div className="relative flex-1">
-          <span
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-xl"
-            aria-hidden="true"
-          >
+          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-xl">
             🔍
           </span>
           <input
@@ -138,7 +63,6 @@ const SearchBar = memo(({ setRecipes }) => {
             onChange={handleInputChange}
             className="w-full pl-12 pr-10 py-3 rounded-xl bg-food-surface text-white border-2 border-food placeholder-gray-400
                        focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-food transition-all"
-            aria-label="Search recipes"
             autoComplete="off"
             spellCheck="false"
           />
@@ -149,7 +73,6 @@ const SearchBar = memo(({ setRecipes }) => {
               type="button"
               onClick={clearSearch}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-              aria-label="Clear search"
             >
               ✕
             </button>
@@ -161,18 +84,15 @@ const SearchBar = memo(({ setRecipes }) => {
           disabled={loading || !query.trim()}
           className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-dark text-white font-semibold transition-all shadow-food
                      disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 justify-center min-w-[120px]"
-          aria-label={loading ? "Searching..." : "Search recipes"}
         >
           {loading ? (
             <>
-              <span className="animate-spin" aria-hidden="true">
-                ⏳
-              </span>
+              <span className="animate-spin">⏳</span>
               Searching...
             </>
           ) : (
             <>
-              <span aria-hidden="true">🍳</span>
+              <span>🍳</span>
               Search
             </>
           )}
